@@ -9,7 +9,7 @@ public class Client {
         Socket socket = null;
         int port = DEFAULT_PORT;
 
-        // Try connecting starting from DEFAULT_PORT, increment until success
+        //connecting 
         while (socket == null) {
             try {
                 socket = new Socket(HOST, port);

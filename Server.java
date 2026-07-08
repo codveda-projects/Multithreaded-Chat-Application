@@ -12,7 +12,7 @@ public class Server {
         int port = DEFAULT_PORT;
         ServerSocket serverSocket = null;
 
-        // Try to bind to default port, if busy increment until available
+        //bind to default port, if busy increment until available
         while (serverSocket == null) {
             try {
                 serverSocket = new ServerSocket(port);
