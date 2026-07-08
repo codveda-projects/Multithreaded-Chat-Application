@@ -31,7 +31,13 @@ public class Client {
             // Sending messages
             String input;
             while ((input = console.readLine()) != null) {
-                out.println(username + ": " + input);
+                // If message starts with @username, send as-is (server handles private logic)
+                if (input.startsWith("@")) {
+                    out.println(input);
+                } else {
+                    // Normal message with username prefix
+                    out.println(username + ": " + input);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
