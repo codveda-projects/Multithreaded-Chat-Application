@@ -19,7 +19,7 @@ public class Server {
                 System.out.println("Server started on port " + port);
             } catch (BindException e) {
                 System.out.println("Port " + port + " is busy, trying next...");
-                port++;
+                port++; // move to next port
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

@@ -3,11 +3,28 @@ import java.net.*;
 
 public class Client {
     private static final String HOST = System.getenv().getOrDefault("CHAT_HOST", "localhost");
-    private static final int PORT = Integer.parseInt(System.getenv().getOrDefault("CHAT_PORT", "1234"));
+    private static final int DEFAULT_PORT = Integer.parseInt(System.getenv().getOrDefault("CHAT_PORT", "1234"));
 
     public static void main(String[] args) {
-        try (Socket socket = new Socket(HOST, PORT);
-             BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+        Socket socket = null;
+        int port = DEFAULT_PORT;
+
+        // Try connecting starting from DEFAULT_PORT, increment until success
+        while (socket == null) {
+            try {
+                socket = new Socket(HOST, port);
+                System.out.println("Connected to server on port " + port);
+            } catch (IOException e) {
+                System.out.println("Port " + port + " not available, trying next...");
+                port++;
+                if (port > DEFAULT_PORT + 50) { // safety limit
+                    System.out.println("Unable to connect to server after trying 50 ports.");
+                    return;
+                }
+            }
+        }
+
+        try (BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
@@ -31,12 +48,10 @@ public class Client {
             // Sending messages
             String input;
             while ((input = console.readLine()) != null) {
-                // If message starts with @username, send as-is (server handles private logic)
                 if (input.startsWith("@")) {
-                    out.println(input);
+                    out.println(input); // private message
                 } else {
-                    // Normal message with username prefix
-                    out.println(username + ": " + input);
+                    out.println(username + ": " + input); // broadcast
                 }
             }
         } catch (IOException e) {
