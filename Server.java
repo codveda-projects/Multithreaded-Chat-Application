@@ -4,14 +4,30 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class Server {
-    // Use environment variable for port, default to 1234
-    private static final int PORT = Integer.parseInt(System.getenv().getOrDefault("CHAT_PORT", "1234"));
-    // Thread-safe set of client handlers
+    // Default port from environment variable or fallback
+    private static final int DEFAULT_PORT = Integer.parseInt(System.getenv().getOrDefault("CHAT_PORT", "1234"));
     private static Set<ClientHandler> clientHandlers = ConcurrentHashMap.newKeySet();
 
     public static void main(String[] args) {
-        System.out.println("Server started on port " + PORT);
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        int port = DEFAULT_PORT;
+        ServerSocket serverSocket = null;
+
+        // Try to bind to default port, if busy increment until available
+        while (serverSocket == null) {
+            try {
+                serverSocket = new ServerSocket(port);
+                System.out.println("Server started on port " + port);
+            } catch (BindException e) {
+                System.out.println("Port " + port + " is busy, trying next...");
+                port++;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        // Accept clients
+        try {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket);
